@@ -3,7 +3,6 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <iostream>
 
 void Network::resize(const size_t& new_size)
 {
