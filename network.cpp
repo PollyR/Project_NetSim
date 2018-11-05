@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <iostream>
 
 void Network::resize(const size_t& new_size)
 {
@@ -39,47 +40,32 @@ size_t Network::random_connect(const double& mean)
 {
 	if (!links.empty())
 	{
-		for (size_t i (0); i < size(); ++i)
-		{
-			links.erase(i);
-		}	
+		links.erase(links.begin(), links.end());
 	}					//! effacement de tous les liens existants
 	
 	RandomNumbers n;
-	size_t num_links (0);
 	for (size_t i (0); i < size(); ++i)
 	{
-		int nb_links (n.poisson(mean));
+		int nb_links (n.poisson(mean));			//! si des liens ont déjà été crée pour le noeud i, ils sont soustraient au nombre total de liens qu'il faut créer
+		
 		while (nb_links > 0)
 		{
-			if (add_link(i, n.uniform_double(0, size())))   //! chaque noeud à la même probabilité d'être choisi
+			if (add_link(i, n.uniform_double(0, size()-1)))   //! chaque noeud à la même probabilité d'être choisi
 			{
 				--nb_links;
-				++num_links;
 			}
 		}
 	}
-	return num_links;			//! le nombre de liens bidirectionnels créés est retourné
+	return links.size()/2;			//! le nombre de liens bidirectionnels créés est retourné
 }
 
 size_t Network::set_values (const std::vector<double>& new_val)
 {
-	if (new_val.size() < size())
+	for (size_t i (0); i < std::min(size(), new_val.size()); ++i)
 	{
-		for (size_t i (0); i < new_val.size(); ++i)
-		{
-			values[i]=new_val[i];
-		}
-		return new_val.size();
+		values[i]=new_val[i];
 	}
-	else
-	{
-		for (size_t j (0); j < size(); ++j)
-		{
-			values[j]=new_val[j];
-		}
-		return size();
-	}
+	return std::min(size(), new_val.size());
 }
 
 size_t Network::size() const
@@ -89,7 +75,7 @@ size_t Network::size() const
 
 size_t Network::degree(const size_t& n) const
 {
-	return links.count(n);				//! retourne le nombre d'occurence de "n" dans la map, et donc le nombre de lien que le noeud a
+		return links.count(n);				//! retourne le nombre d'occurence de "n" dans la map, et donc le nombre de lien que le noeud a
 }
 
 double Network::value (const size_t& n) const
@@ -120,5 +106,3 @@ std::vector<size_t> Network::neighbors (const size_t& n) const
 	}
 	return result;
 }
-
-	
